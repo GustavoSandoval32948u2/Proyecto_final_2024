@@ -1,6 +1,23 @@
 import tkinter as tk
 from tkinter import messagebox
 import numpy as np
+import matplotlib.pyplot as plt
+
+# Función para crear la ventana de presentación
+def ventana_presentacion():
+    ventana = tk.Tk()
+    ventana.title("Proyecto Final")
+    ventana.geometry("1200x600")  
+    ventana.configure(bg="#e0f7fa")
+
+    presentacion_label = tk.Label(ventana, text="Proyecto Final de Álgebra Lineal", font=("Arial", 20), bg="#e0f7fa")
+    presentacion_label.pack(pady=50)
+
+    # Botón para ir a la ventana principal
+    continuar_button = tk.Button(ventana, text="Algebra Lineal", command=lambda: [ventana.destroy(), ventana_principal()], bg="#4db6ac", fg="white", font=("Arial", 16))
+    continuar_button.pack(pady=20)
+
+    ventana.mainloop()
 
 # Función para crear la ventana principal
 def ventana_principal():
@@ -305,6 +322,28 @@ def ventana_ecuaciones_lineales(ventana):
     matriz_frame = tk.Frame(left_frame)
     matriz_frame.grid(row=8, column=0, columnspan=2, pady=10)
 
+    # Título y contexto en la parte derecha
+    right_frame = tk.Frame(nueva_ventana, bg="#e0f7fa")
+    right_frame.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.Y)
+
+    contexto_label = tk.Label(right_frame, text="Contexto sobre la Inversa de Matrices", font=("Arial", 16, 'bold'), bg="#e0f7fa")
+    contexto_label.pack(anchor='ne', pady=(0, 5))
+
+    contexto_text = (
+        """
+        La resolución de sistemas de ecuaciones lineales incluye abordar sistemas de distintas dimensiones, como 2x2, 3x3 y 4x4. 
+        En un sistema 2x2, se resuelven dos ecuaciones con dos incógnitas, mientras que en un 3x3 se trabajan tres ecuaciones con tres variables, 
+        y en un 4x4, cuatro ecuaciones con cuatro incógnitas. Se pueden emplear métodos como Gauss-Jordan, 
+        que transforma el sistema a una forma escalonada reducida, o la regla de Cramer, que utiliza determinantes para sistemas cuadrados. 
+        Al resolver, pueden surgir tres situaciones: soluciones únicas (donde las ecuaciones se intersecan en un único punto), 
+        sin solución (cuando las ecuaciones representan líneas o planos paralelos) o soluciones infinitas (cuando las ecuaciones son dependientes y representan la misma línea o plano). 
+        """
+
+    )
+
+    contexto_label_d = tk.Label(right_frame, text=contexto_text, font=("Arial", 12), bg="#e0f7fa", justify="left", wraplength=400)
+    contexto_label_d.pack(anchor='ne', padx=10, pady=10)
+
     def crear_entradas_sistema():
         try:
             num_ecuaciones = int(ecuaciones_entry.get())
@@ -360,6 +399,9 @@ def ventana_ecuaciones_lineales(ventana):
                     mensaje_label = tk.Label(resultado_frame, text=mensaje, font=("Arial", 12))
                     mensaje_label.grid(row=num_ecuaciones, column=0)
 
+                    # Llamar a la funcion para graficar
+                    graficar_ecuaciones(coeficientes, terminos_independientes)
+
             except ValueError:
                 messagebox.showerror("Error", "Por favor, ingresa solo números en las matrices.")
                 return
@@ -370,6 +412,34 @@ def ventana_ecuaciones_lineales(ventana):
 
     generar_button = tk.Button(left_frame, text="Generar Entradas del Sistema", command=crear_entradas_sistema, bg="#4db6ac", fg="white", font=("Arial", 12))
     generar_button.grid(row=4, column=0, columnspan=2, pady=20)
+
+# Función para graficar las ecuaciones
+def graficar_ecuaciones(coeficientes, terminos_independientes):
+    # Crear un rango de valores para x
+    x_vals = np.linspace(-10, 10, 400)  # Ajusta el rango según sea necesario
+
+    # Graficar cada ecuación
+    for i in range(len(coeficientes)):
+        # Obteniendo los coeficientes de la ecuación
+        a, b = coeficientes[i]
+        c = terminos_independientes[i]
+
+        # Calcular los valores de y
+        y_vals = (c - a * x_vals) / b  # y = (c - ax) / b
+        
+        # Graficar la recta
+        plt.plot(x_vals, y_vals, label=f'Ecuación {i + 1}')
+
+    plt.axhline(0, color='black', lw=0.5)  # Línea horizontal en y=0
+    plt.axvline(0, color='black', lw=0.5)  # Línea vertical en x=0
+    plt.xlim(-10, 10)  # Establece límites en x
+    plt.ylim(-10, 10)  # Establece límites en y
+    plt.grid(color='gray', linestyle='--', linewidth=0.5)  # Grilla
+    plt.legend()  # Muestra la leyenda
+    plt.title('Gráficas de las Ecuaciones')  # Título de la gráfica
+    plt.xlabel('x')  # Etiqueta del eje x
+    plt.ylabel('y')  # Etiqueta del eje y
+    plt.show()  # Muestra la gráfica
 
 # Función para resolver el sistema de ecuaciones por Gauss-Jordan
 def resolver_por_gauss_jordan(coeficientes, terminos_independientes):
@@ -398,5 +468,41 @@ def resolver_por_cramer(coeficientes, terminos_independientes):
             matriz_temp[:, i] = terminos_independientes
             soluciones.append(np.linalg.det(matriz_temp) / det_a)
         return soluciones, "Solución única"
+    
+# Función para graficar las ecuaciones
+def graficar_ecuaciones(coeficientes, terminos_independientes):
+    x_vals = np.linspace(-10, 10, 400)  # Rango de valores para x
+    plt.figure(figsize=(10, 6))
 
-ventana_principal()
+    for i in range(len(coeficientes)):
+        # Obtener coeficientes de la ecuación
+        a = coeficientes[i]
+        b = terminos_independientes[i]
+
+        # Calculamos la pendiente y la intersección
+        if len(a) == 2:  # Solo dos coeficientes, es una línea
+            m = -a[0] / a[1]  # Pendiente
+            b = b / a[1]  # Intersección
+            y_vals = m * x_vals + b
+            plt.plot(x_vals, y_vals, label=f'Ecuación {i+1}: {a[0]}x + {a[1]}y = {terminos_independientes[i]}')
+        elif len(a) == 3:  # Tres coeficientes, plano (solo graficamos si hay más de 2 ecuaciones)
+            # Aquí solo graficamos si hay exactamente dos ecuaciones para evitar problemas de dimensión
+            if len(coeficientes) == 2:
+                x_vals_2d = np.linspace(-10, 10, 400)
+                y_vals_1 = (b[0] - a[0] * x_vals_2d) / a[1]
+                y_vals_2 = (b[1] - coeficientes[1][0] * x_vals_2d) / coeficientes[1][1]
+                plt.plot(x_vals_2d, y_vals_1, label=f'Ecuación 1')
+                plt.plot(x_vals_2d, y_vals_2, label=f'Ecuación 2')
+
+    plt.axhline(0, color='black',linewidth=0.5, ls='--')
+    plt.axvline(0, color='black',linewidth=0.5, ls='--')
+    plt.grid(color = 'gray', linestyle = '--', linewidth = 0.5)
+    plt.title('Gráfica de las Ecuaciones')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.legend()
+    plt.xlim(-10, 10)
+    plt.ylim(-10, 10)
+    plt.show()
+
+ventana_presentacion()
