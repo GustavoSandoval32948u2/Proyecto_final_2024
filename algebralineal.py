@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import numpy as np
 
 # Función para crear la ventana principal
 def ventana_principal():
@@ -13,6 +14,13 @@ def ventana_principal():
 
     multiplicar_button = tk.Button(ventana, text="Multiplicar Matrices", command=lambda: ventana_multiplicar(ventana), bg="#4db6ac", fg="white", font=("Arial", 16))
     multiplicar_button.pack(pady=10)
+
+    inversa_button = tk.Button(ventana, text="Encontrar Inversa de Matriz", command=lambda: ventana_inversa(ventana), bg="#4db6ac", fg="white", font=("Arial", 16))
+    inversa_button.pack(pady=10)
+
+    # Añadir el botón para la nueva funcionalidad de resolver sistemas de ecuaciones lineales
+    ecuaciones_button = tk.Button(ventana, text="Resolver Sistemas de Ecuaciones Lineales", command=lambda: ventana_ecuaciones_lineales(ventana), bg="#4db6ac", fg="white", font=("Arial", 16))
+    ecuaciones_button.pack(pady=10)
 
     ventana.mainloop()
 
@@ -144,7 +152,251 @@ def ventana_multiplicar(ventana):
         multiplicar_button.grid(row=6, column=0, columnspan=2, pady=20)
 
     generar_button = tk.Button(left_frame, text="Generar Entradas de Matrices", command=crear_entradas_matrices, bg="#4db6ac", fg="white", font=("Arial", 12))
-    generar_button.grid(row=5, column=0, columnspan=2, pady=20)
+    generar_button.grid(row=5, column=0, columnspan=2, pady=10)
 
-# Ejecutar la ventana principal
+# Ventana para la opción de encontrar la inversa de una matriz
+def ventana_inversa(ventana):
+    nueva_ventana = tk.Toplevel(ventana)
+    nueva_ventana.title("Encontrar Inversa de Matriz")
+    nueva_ventana.geometry("1200x600")  # Aumentar el tamaño de la ventana
+    nueva_ventana.configure(bg="#e0f7fa")
+
+    # Frame para las instrucciones y entradas
+    left_frame = tk.Frame(nueva_ventana, bg="#e0f7fa")
+    left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.Y)
+
+    instrucciones_label = tk.Label(left_frame, text="Ingresa las dimensiones de la matriz:", font=("Arial", 14), bg="#e0f7fa")
+    instrucciones_label.grid(row=0, column=0, columnspan=2, pady=(10, 20))
+
+    filas_label = tk.Label(left_frame, text="Filas de la matriz:", bg="#e0f7fa", font=("Arial", 12))
+    filas_label.grid(row=1, column=0, padx=10, sticky='w')
+    filas_entry = tk.Entry(left_frame, font=("Arial", 12))
+    filas_entry.grid(row=1, column=1)
+
+    columnas_label = tk.Label(left_frame, text="Columnas de la matriz:", bg="#e0f7fa", font=("Arial", 12))
+    columnas_label.grid(row=2, column=0, padx=10, sticky='w')
+    columnas_entry = tk.Entry(left_frame, font=("Arial", 12))
+    columnas_entry.grid(row=2, column=1)
+
+    # Título y contexto en la parte derecha
+    right_frame = tk.Frame(nueva_ventana, bg="#e0f7fa")
+    right_frame.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.Y)
+
+    contexto_label = tk.Label(right_frame, text="Contexto sobre la Inversa de Matrices", font=("Arial", 16, 'bold'), bg="#e0f7fa")
+    contexto_label.pack(anchor='ne', pady=(0, 5))
+
+    contexto_text = (
+        "La inversa de una matriz es un concepto fundamental en álgebra lineal. "
+        "Si A es una matriz cuadrada, su inversa se denota como A^(-1), y se define "
+        "como la matriz que, cuando se multiplica por A, produce la matriz identidad. "
+        "No todas las matrices tienen inversa, y solo las matrices cuadradas que son no singulares (determinante diferente de cero) tienen inversa."
+    )
+
+    contexto_label_d = tk.Label(right_frame, text=contexto_text, font=("Arial", 12), bg="#e0f7fa", justify="left", wraplength=400)
+    contexto_label_d.pack(anchor='ne', padx=10, pady=10)
+
+    resultado_label = tk.Label(left_frame, text="Resultado de la inversa:", font=("Arial", 12), bg="#e0f7fa")
+    resultado_label.grid(row=5, column=0, columnspan=2, pady=10)
+
+    resultado_frame = tk.Frame(left_frame)
+    resultado_frame.grid(row=6, column=0, columnspan=2, pady=10)  # Cambiado de 7 a 6 para posicionar correctamente
+
+    matriz_frame = tk.Frame(left_frame)
+    matriz_frame.grid(row=7, column=0, columnspan=2, pady=10)
+
+    def crear_entradas_matriz():
+        try:
+            filas = int(filas_entry.get())
+            columnas = int(columnas_entry.get())
+        except ValueError:
+            messagebox.showerror("Error", "Por favor, ingresa números válidos.")
+            return
+
+        if filas != columnas:
+            messagebox.showerror("Error", "La matriz debe ser cuadrada (igual número de filas y columnas).")
+            return
+
+        # Limpiar el marco de la matriz y del resultado antes de generar nuevas entradas
+        for widget in matriz_frame.winfo_children():
+            widget.destroy()
+        for widget in resultado_frame.winfo_children():
+            widget.destroy()
+
+        # Generar celdas para la matriz
+        matriz_entries = []
+        for i in range(filas):
+            fila_entries = []
+            for j in range(columnas):
+                entrada = tk.Entry(matriz_frame, width=5, font=("Arial", 12))
+                entrada.grid(row=i, column=j)
+                fila_entries.append(entrada)
+            matriz_entries.append(fila_entries)
+
+        # Calcular y mostrar el resultado de la inversa
+        def calcular_inversa():
+            try:
+                matriz = [[float(matriz_entries[i][j].get()) for j in range(columnas)] for i in range(filas)]
+                inversa = calcular_inversa_matriz(matriz)
+
+                # Mostrar el resultado
+                if inversa is not None:
+                    for i in range(filas):
+                        for j in range(columnas):
+                            entrada_resultado = tk.Label(resultado_frame, text=f"{inversa[i][j]:.2f}", font=("Arial", 12))
+                            entrada_resultado.grid(row=i, column=j)
+                else:
+                    messagebox.showerror("Error", "La matriz no tiene inversa (determinante es cero).")
+
+            except ValueError:
+                messagebox.showerror("Error", "Por favor, ingresa solo números en la matriz.")
+                return
+
+        # Botón para calcular la inversa
+        calcular_button = tk.Button(left_frame, text="Calcular Inversa", command=calcular_inversa, bg="#4db6ac", fg="white", font=("Arial", 12))
+        calcular_button.grid(row=8, column=0, columnspan=2, pady=20)  # Cambiado de 6 a 8
+
+    generar_button = tk.Button(left_frame, text="Generar Entradas de Matriz", command=crear_entradas_matriz, bg="#4db6ac", fg="white", font=("Arial", 12))
+    generar_button.grid(row=4, column=0, columnspan=2, pady=20)
+
+# Función para calcular la inversa de la matriz
+def calcular_inversa_matriz(matriz):
+    try:
+        matriz_np = np.array(matriz)
+        inversa = np.linalg.inv(matriz_np)
+        return inversa.tolist()
+    except np.linalg.LinAlgError:
+        return None  # La matriz no tiene inversa
+
+# Ventana para la opción de resolver sistemas de ecuaciones lineales
+def ventana_ecuaciones_lineales(ventana):
+    nueva_ventana = tk.Toplevel(ventana)
+    nueva_ventana.title("Resolver Sistemas de Ecuaciones Lineales")
+    nueva_ventana.geometry("1200x600")
+    nueva_ventana.configure(bg="#e0f7fa")
+
+    # Frame para las instrucciones y entradas
+    left_frame = tk.Frame(nueva_ventana, bg="#e0f7fa")
+    left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.Y)
+
+    instrucciones_label = tk.Label(left_frame, text="Ingresa el número de ecuaciones y variables:", font=("Arial", 14), bg="#e0f7fa")
+    instrucciones_label.grid(row=0, column=0, columnspan=2, pady=(10, 20))
+
+    ecuaciones_label = tk.Label(left_frame, text="Número de ecuaciones (2, 3 o 4):", bg="#e0f7fa", font=("Arial", 12))
+    ecuaciones_label.grid(row=1, column=0, padx=10, sticky='w')
+    ecuaciones_entry = tk.Entry(left_frame, font=("Arial", 12))
+    ecuaciones_entry.grid(row=1, column=1)
+
+    metodo_label = tk.Label(left_frame, text="Selecciona el método:", font=("Arial", 12), bg="#e0f7fa")
+    metodo_label.grid(row=2, column=0, padx=10, pady=(10, 10))
+    
+    metodo_var = tk.StringVar(value="Gauss-Jordan")
+    gauss_jordan_radiobutton = tk.Radiobutton(left_frame, text="Gauss-Jordan", variable=metodo_var, value="Gauss-Jordan", bg="#e0f7fa", font=("Arial", 12))
+    cramer_radiobutton = tk.Radiobutton(left_frame, text="Regla de Cramer", variable=metodo_var, value="Cramer", bg="#e0f7fa", font=("Arial", 12))
+    
+    gauss_jordan_radiobutton.grid(row=3, column=0, sticky='w')
+    cramer_radiobutton.grid(row=3, column=1, sticky='w')
+
+    resultado_label = tk.Label(left_frame, text="Resultado del sistema:", font=("Arial", 12), bg="#e0f7fa")
+    resultado_label.grid(row=5, column=0, columnspan=2, pady=10)
+
+    resultado_frame = tk.Frame(left_frame)
+    resultado_frame.grid(row=7, column=0, columnspan=2, pady=10)
+
+    matriz_frame = tk.Frame(left_frame)
+    matriz_frame.grid(row=8, column=0, columnspan=2, pady=10)
+
+    def crear_entradas_sistema():
+        try:
+            num_ecuaciones = int(ecuaciones_entry.get())
+            if num_ecuaciones not in [2, 3, 4]:
+                raise ValueError
+        except ValueError:
+            messagebox.showerror("Error", "Por favor, ingresa un número válido de ecuaciones (2, 3 o 4).")
+            return
+
+        # Limpiar los marcos de la matriz y del resultado antes de generar nuevas entradas
+        for widget in matriz_frame.winfo_children():
+            widget.destroy()
+        for widget in resultado_frame.winfo_children():
+            widget.destroy()
+
+        # Generar celdas para los coeficientes de las ecuaciones
+        coeficientes_entries = []
+        terminos_independientes_entries = []
+
+        for i in range(num_ecuaciones):
+            fila_entries = []
+            for j in range(num_ecuaciones):
+                entrada = tk.Entry(matriz_frame, width=5, font=("Arial", 12))
+                entrada.grid(row=i, column=j)
+                fila_entries.append(entrada)
+            coeficientes_entries.append(fila_entries)
+
+            # Generar entradas para los términos independientes
+            entrada_termino_independiente = tk.Entry(matriz_frame, width=5, font=("Arial", 12))
+            entrada_termino_independiente.grid(row=i, column=num_ecuaciones + 1)  # Separar por una columna
+            terminos_independientes_entries.append(entrada_termino_independiente)
+
+        # Calcular y mostrar el resultado del sistema
+        def resolver_sistema():
+            try:
+                coeficientes = [[float(coeficientes_entries[i][j].get()) for j in range(num_ecuaciones)] for i in range(num_ecuaciones)]
+                terminos_independientes = [float(terminos_independientes_entries[i].get()) for i in range(num_ecuaciones)]
+                metodo = metodo_var.get()
+
+                if metodo == "Gauss-Jordan":
+                    soluciones, mensaje = resolver_por_gauss_jordan(coeficientes, terminos_independientes)
+                else:
+                    soluciones, mensaje = resolver_por_cramer(coeficientes, terminos_independientes)
+
+                # Mostrar el resultado
+                if soluciones is None:
+                    resultado_label = tk.Label(resultado_frame, text=mensaje, font=("Arial", 12))
+                    resultado_label.grid(row=0, column=0)
+                else:
+                    for i in range(num_ecuaciones):
+                        entrada_resultado = tk.Label(resultado_frame, text=f"x{i+1} = {soluciones[i]:.2f}", font=("Arial", 12))
+                        entrada_resultado.grid(row=i, column=0)
+                    mensaje_label = tk.Label(resultado_frame, text=mensaje, font=("Arial", 12))
+                    mensaje_label.grid(row=num_ecuaciones, column=0)
+
+            except ValueError:
+                messagebox.showerror("Error", "Por favor, ingresa solo números en las matrices.")
+                return
+
+        # Botón para resolver el sistema
+        resolver_button = tk.Button(left_frame, text="Resolver Sistema", command=resolver_sistema, bg="#4db6ac", fg="white", font=("Arial", 12))
+        resolver_button.grid(row=6, column=0, columnspan=2, pady=20)
+
+    generar_button = tk.Button(left_frame, text="Generar Entradas del Sistema", command=crear_entradas_sistema, bg="#4db6ac", fg="white", font=("Arial", 12))
+    generar_button.grid(row=4, column=0, columnspan=2, pady=20)
+
+# Función para resolver el sistema de ecuaciones por Gauss-Jordan
+def resolver_por_gauss_jordan(coeficientes, terminos_independientes):
+    matriz = np.column_stack((coeficientes, terminos_independientes))
+    try:
+        soluciones = np.linalg.solve(coeficientes, terminos_independientes)
+        return soluciones, "Solución única"
+    except np.linalg.LinAlgError as e:
+        rango_a = np.linalg.matrix_rank(coeficientes)
+        rango_aumentada = np.linalg.matrix_rank(matriz)
+
+        if rango_a != rango_aumentada:
+            return None, "El sistema no tiene solución"
+        elif rango_a == rango_aumentada and rango_a < len(coeficientes):
+            return None, "El sistema tiene soluciones infinitas"
+
+# Función para resolver el sistema de ecuaciones por la regla de Cramer
+def resolver_por_cramer(coeficientes, terminos_independientes):
+    det_a = np.linalg.det(coeficientes)
+    if det_a == 0:
+        return None, "El sistema no tiene solución o tiene soluciones infinitas"
+    else:
+        soluciones = []
+        for i in range(len(coeficientes)):
+            matriz_temp = np.copy(coeficientes)
+            matriz_temp[:, i] = terminos_independientes
+            soluciones.append(np.linalg.det(matriz_temp) / det_a)
+        return soluciones, "Solución única"
+
 ventana_principal()
