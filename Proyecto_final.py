@@ -356,7 +356,6 @@ def ventana_inversa(ventana):
                 messagebox.showerror("Error", "Por favor, ingresa solo números en la matriz.")
                 return
 
-        # Botón para calcular la inversa
         calcular_button = tk.Button(left_frame, text="Calcular Inversa", command=calcular_inversa, bg="#4db6ac", fg="white", font=("Arial", 12))
         calcular_button.grid(row=8, column=0, columnspan=2, pady=20)  # Cambiado de 6 a 8
 
@@ -499,7 +498,6 @@ def ventana_ecuaciones_lineales(ventana):
 
 # Función para graficar las ecuaciones
 def graficar_ecuaciones(coeficientes, terminos_independientes):
-    # Crear un rango de valores para x
     x_vals = np.linspace(-10, 10, 400)  
 
     # Graficar cada ecuación
@@ -515,14 +513,14 @@ def graficar_ecuaciones(coeficientes, terminos_independientes):
 
     plt.axhline(0, color='black', lw=0.5)  # Línea horizontal en y=0
     plt.axvline(0, color='black', lw=0.5)  # Línea vertical en x=0
-    plt.xlim(-10, 10)  # Establece límites en x
-    plt.ylim(-10, 10)  # Establece límites en y
+    plt.xlim(-10, 10)  
+    plt.ylim(-10, 10)  
     plt.grid(color='gray', linestyle='--', linewidth=0.5) 
     plt.legend()  
-    plt.title('Gráficas de las Ecuaciones')  # Título de la gráfica
+    plt.title('Gráficas de las Ecuaciones')  
     plt.xlabel('x')  # Etiqueta del eje x
     plt.ylabel('y')  # Etiqueta del eje y
-    plt.show()  # Muestra la gráfica
+    plt.show()  
 
 # Función para resolver el sistema de ecuaciones por Gauss-Jordan
 def resolver_por_gauss_jordan(coeficientes, terminos_independientes):
@@ -554,7 +552,7 @@ def resolver_por_cramer(coeficientes, terminos_independientes):
     
 # Función para graficar las ecuaciones
 def graficar_ecuaciones(coeficientes, terminos_independientes):
-    x_vals = np.linspace(-10, 10, 400)  # Rango de valores para x
+    x_vals = np.linspace(-10, 10, 400)  
     plt.figure(figsize=(10, 6))
 
     for i in range(len(coeficientes)):
@@ -563,12 +561,11 @@ def graficar_ecuaciones(coeficientes, terminos_independientes):
 
         # Calculamos la pendiente y la intersección
         if len(a) == 2:  
-            m = -a[0] / a[1]  # Pendiente
-            b = b / a[1]  # Intersección
+            m = -a[0] / a[1]  
+            b = b / a[1]  
             y_vals = m * x_vals + b
             plt.plot(x_vals, y_vals, label=f'Ecuación {i+1}: {a[0]}x + {a[1]}y = {terminos_independientes[i]}')
         elif len(a) == 3: 
-            # Aquí solo graficamos si hay exactamente dos ecuaciones para evitar problemas de dimensión
             if len(coeficientes) == 2:
                 x_vals_2d = np.linspace(-10, 10, 400)
                 y_vals_1 = (b[0] - a[0] * x_vals_2d) / a[1]
@@ -594,8 +591,8 @@ def ventana_principal():
     root.geometry("1200x600")  
     root.configure(bg="#A1D6E2")  
 
-    # Título
-    label_titulo = tk.Label(root, text="Menú Principal", font=("Helvetica", 30, "bold"), bg="#A1D6E2", fg="black")
+    # Título principal
+    label_titulo = tk.Label(root, text="PROYECTO FINAL 2024", font=("Helvetica", 30, "bold"), bg="#A1D6E2", fg="black")
     label_titulo.pack(pady=30)  
 
     # Botón de Álgebra Lineal
@@ -603,17 +600,25 @@ def ventana_principal():
                              font=("Helvetica", 16, "bold"), bg="#4FC3F7", fg="white", width=25, height=2)  
     btn_algebra.pack(pady=20)  
 
-    # Botón de Mátematica Discreta
+    # Botón de Matemática Discreta
     btn_matematica_discreta = tk.Button(root, text="Matemática Discreta", command=ventana_matematica_discreta, 
                                          font=("Helvetica", 16, "bold"), bg="#9B59B6", fg="white", width=25, height=2)  
     btn_matematica_discreta.pack(pady=20)  
 
-    btn_algoritmos = tk.Button(root, text="Algoritmos",
-                                         font=("Helvetica", 16, "bold"), bg="#E57373", fg="white", width=25, height=2)  
-    btn_algoritmos.pack(pady=20) 
+    # Botón de Algoritmos
+    btn_algoritmos = tk.Button(root, text="Algoritmos", font=("Helvetica", 16, "bold"), 
+                               bg="#E57373", fg="white", width=25, height=2)  
+    btn_algoritmos.pack(pady=30) 
+
+    label_creadores = tk.Label(root, text="Creadores", font=("Helvetica", 12, "bold"), bg="#A1D6E2", fg="black")
+    label_creadores.place(x=10, y=550)  
+
+    label_nombres = tk.Label(root, text="Edin Adolfo, Gustavo Sandoval y Mauricio Figueroa", font=("Helvetica", 12), bg="#A1D6E2", fg="black")
+    label_nombres.place(x=10, y=570)
 
     for widget in root.winfo_children():
-        widget.pack_configure(anchor='center')
+        if isinstance(widget, tk.Button) or isinstance(widget, tk.Label):
+            widget.pack_configure(anchor='center')
 
     root.mainloop()
 
