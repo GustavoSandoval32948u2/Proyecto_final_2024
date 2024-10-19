@@ -357,7 +357,7 @@ def ventana_inversa(ventana):
                 return
 
         calcular_button = tk.Button(left_frame, text="Calcular Inversa", command=calcular_inversa, bg="#4db6ac", fg="white", font=("Arial", 12))
-        calcular_button.grid(row=8, column=0, columnspan=2, pady=20)  # Cambiado de 6 a 8
+        calcular_button.grid(row=8, column=0, columnspan=2, pady=20) 
 
     generar_button = tk.Button(left_frame, text="Generar Entradas de Matriz", command=crear_entradas_matriz, bg="#4db6ac", fg="white", font=("Arial", 12))
     generar_button.grid(row=4, column=0, columnspan=2, pady=20)
